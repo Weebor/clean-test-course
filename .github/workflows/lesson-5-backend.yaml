@@ -13,7 +13,18 @@ jobs:
     name: Execute the PyCharm security test
     steps:
       - uses: actions/checkout@v4
+      - name: disable debug
+      run: |
+        sed -i 's/DEBUG = True/DEBUG = False/g' \
+          hangry_api/hangry_api/settings.py
       - name: PyCharm Python Security Scanner
+      needs: [deploy]
+      runs-on: ubuntu-latest
+      steps:
+        - name: ZAP Baseline Scan
+          uses: zaproxy/action-baseline@v0.15.0
+          with:
+            target: 'https://hangryhippo.quantic.host'
   uses: tonybaloney/pycharm-security@1.25.1
   build_and_test:
     needs: [security_test]
